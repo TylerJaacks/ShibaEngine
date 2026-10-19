@@ -9,50 +9,18 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-file(GLOB_RECURSE SHIBAENGINE_SOURCES CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.mm"
-)
+# Put the Loader executable and every module next to each other so they can find one another at runtime.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-file(GLOB_RECURSE SHIBAENGINE_HEADERS CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
-)
+function(shiba_set_warnings target)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endfunction()
 
-add_executable(ShibaEngine
-        ${SHIBAENGINE_SOURCES}
-        ${SHIBAENGINE_HEADERS}
-        src/Renderer/Backend/Metal/MetalContext.cpp
-)
-
-target_include_directories(ShibaEngine PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
-
-if(DEFINED VCPKG_INSTALLED_DIR AND DEFINED VCPKG_TARGET_TRIPLET)
-    target_include_directories(ShibaEngine PRIVATE
-            "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include"
-    )
-endif()
-
-if(APPLE)
-    target_link_libraries(ShibaEngine PRIVATE
-            "-framework Foundation"
-            "-framework Metal"
-            "-framework QuartzCore"
-            "-framework AppKit"
-    )
-endif()
-
-if(MSVC)
-    target_compile_options(ShibaEngine PRIVATE
-            /W4
-    )
-else()
-    target_compile_options(ShibaEngine PRIVATE
-            -Wall
-            -Wextra
-            -Wpedantic
-    )
-endif()
+add_subdirectory(Engine)
+add_subdirectory(Sandbox)
+add_subdirectory(Loader)
