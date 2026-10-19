@@ -3,22 +3,28 @@
 Entity::Entity() : m_components() {
 }
 
-Entity::~Entity() {
-
-}
+Entity::~Entity() = default;
 
 void Entity::OnInitialize() {
+    for (Component *component : GetComponents()) {
+        component->OnInitialize();
+    }
 }
 
 void Entity::OnUpdate(Timestep timestep) {
+    for (Component *component : GetComponents()) {
+        component->OnUpdate(timestep);
+    }
 }
 
 void Entity::OnRender() {
+    for (Component *component : GetComponents()) {
+        component->OnRender();
+    }
 }
 
 void Entity::OnShutdown() {
-}
-
-const std::vector<Component *> & Entity::GetComponents() const {
-    return m_components;
+    for (Component *component : GetComponents()) {
+        component->OnShutdown();
+    }
 }

@@ -10,14 +10,17 @@ class Scene {
 public:
     Scene();
 
+    virtual ~Scene() = default;
+
     explicit Scene(const std::vector<Entity *> &entities);
 
-    void OnInitialize() const;
-    void OnUpdate(Timestep timestep) const;
-    void OnRender() const;
-    void OnShutdown() const;
+    virtual void OnInitialize();
+    virtual void OnUpdate(Timestep timestep);
+    virtual void OnRender();
+    virtual void OnShutdown();
 
-    [[nodiscard]] std::vector<Entity*> GetEntities();
+    [[nodiscard]] const std::vector<Entity*>& GetEntities() const { return m_entities; }
+    [[nodiscard]] std::vector<Entity*>& GetEntities() { return m_entities; }
 private:
     std::vector<Entity*> m_entities;
 };

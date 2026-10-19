@@ -9,14 +9,16 @@
 class Entity {
 public:
     Entity();
-    ~Entity();
 
-    void OnInitialize();
-    void OnUpdate(Timestep timestep);
-    void OnRender();
-    void OnShutdown();
+    virtual ~Entity();
 
-    [[nodiscard]] const std::vector<Component*>& GetComponents() const;
+    virtual void OnInitialize();
+    virtual void OnUpdate(Timestep timestep);
+    virtual void OnRender();
+    virtual void OnShutdown();
+
+    [[nodiscard]] const std::vector<Component*>& GetComponents() const { return m_components; }
+    [[nodiscard]] std::vector<Component*>& GetComponents() { return m_components; }
 private:
     std::vector<Component*> m_components;
 };

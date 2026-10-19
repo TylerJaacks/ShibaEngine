@@ -8,26 +8,22 @@ Scene::Scene(const std::vector<Entity *> &entities) {
     m_entities = entities;
 }
 
-void Scene::OnInitialize() const {
+void Scene::OnInitialize() {
     for (Entity *entity : m_entities)
         entity->OnInitialize();
 }
 
-void Scene::OnUpdate(const Timestep timestep) const {
+void Scene::OnUpdate(const Timestep timestep) {
     for (Entity *entity : m_entities)
         entity->OnUpdate(timestep);
 }
 
-void Scene::OnRender() const {
+void Scene::OnRender() {
     for (Entity *entity : m_entities)
         entity->OnRender();
 }
 
-void Scene::OnShutdown() const {
+void Scene::OnShutdown() {
     for (Entity *entity : m_entities)
         entity->OnShutdown();
-}
-
-std::vector<Entity *> Scene::GetEntities() {
-    return m_entities;
 }

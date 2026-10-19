@@ -2,6 +2,7 @@
 #define SHIBAENGINE_COMPONENT_H
 
 #include <cstdint>
+#include <Core/Timestep.h>
 
 using ComponentTypeId = std::uint64_t;
 
@@ -15,6 +16,11 @@ public:
 
     Component(Component&&) = default;
     Component& operator=(Component&&) = default;
+
+    virtual void OnInitialize() {}
+    virtual void OnUpdate(Timestep timestep) {}
+    virtual void OnRender() {}
+    virtual void OnShutdown() {}
 
     [[nodiscard]] virtual ComponentTypeId GetTypeId() const = 0;
     [[nodiscard]] virtual const char* GetTypeName() const = 0;
