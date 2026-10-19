@@ -4,6 +4,8 @@
 #include <Game.h>
 #include <ECS/Scene.h>
 
+#include <memory>
+
 class MyGame : public Game {
 public:
     MyGame();
@@ -15,7 +17,7 @@ public:
     void OnShutdown() override;
 
 private:
-    Scene* m_Scene;
+    std::unique_ptr<Scene> m_scene;
 };
 
 #endif //SHIBAENGINE_MYGAME_H

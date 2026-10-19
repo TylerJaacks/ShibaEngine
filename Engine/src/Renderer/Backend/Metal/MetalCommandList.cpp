@@ -7,6 +7,39 @@
 #include <Metal/MTLRenderCommandEncoder.hpp>
 
 #include <Renderer/Backend/Metal/MetalCommandList.h>
+#include <Renderer/Backend/Metal/MetalBuffer.h>
+#include <Renderer/Backend/Metal/MetalPipeline.h>
+#include <Renderer/Backend/Metal/MetalTexture.h>
+
+namespace {
+    MTL::PrimitiveType ToMetalPrimitiveType(const RHIPrimitiveTopology topology) {
+        switch (topology) {
+            case RHIPrimitiveTopology::TriangleStrip:
+                return MTL::PrimitiveTypeTriangleStrip;
+            case RHIPrimitiveTopology::LineList:
+                return MTL::PrimitiveTypeLine;
+            case RHIPrimitiveTopology::LineStrip:
+                return MTL::PrimitiveTypeLineStrip;
+            case RHIPrimitiveTopology::PointList:
+                return MTL::PrimitiveTypePoint;
+            case RHIPrimitiveTopology::TriangleList:
+            default:
+                return MTL::PrimitiveTypeTriangle;
+        }
+    }
+
+    MTL::CullMode ToMetalCullMode(const RHICullMode cullMode) {
+        switch (cullMode) {
+            case RHICullMode::Front:
+                return MTL::CullModeFront;
+            case RHICullMode::Back:
+                return MTL::CullModeBack;
+            case RHICullMode::None:
+            default:
+                return MTL::CullModeNone;
+        }
+    }
+}
 
 bool MetalCommandList::Initialize(MTL::CommandBuffer *commandBuffer, RHICommandListType type) {
     if (m_isInitialized) {
@@ -36,6 +69,7 @@ void MetalCommandList::Shutdown() {
 
     if (m_renderCommandEncoder != nullptr) {
         m_renderCommandEncoder->endEncoding();
+        m_renderCommandEncoder->release();
         m_renderCommandEncoder = nullptr;
     }
 
@@ -78,6 +112,7 @@ void MetalCommandList::End() {
 
     if (m_renderCommandEncoder != nullptr) {
         m_renderCommandEncoder->endEncoding();
+        m_renderCommandEncoder->release();
         m_renderCommandEncoder = nullptr;
     }
 
@@ -100,8 +135,42 @@ void MetalCommandList::BeginRenderPass(const RHIRenderPassDesc &desc) {
         return;
     }
 
-    (void) desc;
+    const auto *colorTexture = static_cast<MetalTexture *>(desc.colorTarget);
 
+    if (colorTexture == nullptr || colorTexture->GetNativeTexture() == nullptr) {
+        return;
+    }
+
+    const auto *renderPassDescriptor = MTL::RenderPassDescriptor::renderPassDescriptor();
+
+    auto *colorAttachment = renderPassDescriptor->colorAttachments()->object(0);
+    colorAttachment->setTexture(colorTexture->GetNativeTexture());
+    colorAttachment->setLoadAction(desc.clearColorTarget ? MTL::LoadActionClear : MTL::LoadActionLoad);
+    colorAttachment->setStoreAction(MTL::StoreActionStore);
+    colorAttachment->setClearColor(MTL::ClearColor::Make(
+        desc.clearColor.r,
+        desc.clearColor.g,
+        desc.clearColor.b,
+        desc.clearColor.a
+    ));
+
+    const auto *depthTexture = static_cast<MetalTexture *>(desc.depthStencilTarget);
+
+    if (depthTexture != nullptr && depthTexture->GetNativeTexture() != nullptr) {
+        auto *depthAttachment = renderPassDescriptor->depthAttachment();
+        depthAttachment->setTexture(depthTexture->GetNativeTexture());
+        depthAttachment->setLoadAction(desc.clearDepthStencilTarget ? MTL::LoadActionClear : MTL::LoadActionLoad);
+        depthAttachment->setStoreAction(MTL::StoreActionDontCare);
+        depthAttachment->setClearDepth(desc.clearDepth);
+    }
+
+    m_renderCommandEncoder = m_commandBuffer->renderCommandEncoder(renderPassDescriptor);
+
+    if (m_renderCommandEncoder == nullptr) {
+        return;
+    }
+
+    m_renderCommandEncoder->retain();
     m_isInRenderPass = true;
 }
 
@@ -112,18 +181,45 @@ void MetalCommandList::EndRenderPass() {
 
     if (m_renderCommandEncoder != nullptr) {
         m_renderCommandEncoder->endEncoding();
+        m_renderCommandEncoder->release();
         m_renderCommandEncoder = nullptr;
     }
 
+    m_currentPipeline = nullptr;
+    m_indexBuffer = nullptr;
     m_isInRenderPass = false;
 }
 
 void MetalCommandList::SetPipeline(RHIPipeline *pipeline) {
-    if (!m_isRecording) {
+    if (!m_isRecording || m_renderCommandEncoder == nullptr || pipeline == nullptr) {
         return;
     }
 
-    (void) pipeline;
+    auto *metalPipeline = static_cast<MetalPipeline *>(pipeline);
+
+    if (metalPipeline->GetNativeRenderPipelineState() == nullptr) {
+        return;
+    }
+
+    m_currentPipeline = metalPipeline;
+
+    m_renderCommandEncoder->setRenderPipelineState(metalPipeline->GetNativeRenderPipelineState());
+
+    if (metalPipeline->GetNativeDepthStencilState() != nullptr) {
+        m_renderCommandEncoder->setDepthStencilState(metalPipeline->GetNativeDepthStencilState());
+    }
+
+    m_renderCommandEncoder->setCullMode(ToMetalCullMode(metalPipeline->GetCullMode()));
+    m_renderCommandEncoder->setFrontFacingWinding(
+        metalPipeline->GetFrontFace() == RHIFrontFace::Clockwise
+            ? MTL::WindingClockwise
+            : MTL::WindingCounterClockwise
+    );
+    m_renderCommandEncoder->setTriangleFillMode(
+        metalPipeline->GetFillMode() == RHIFillMode::Wireframe
+            ? MTL::TriangleFillModeLines
+            : MTL::TriangleFillModeFill
+    );
 }
 
 void MetalCommandList::SetPrimitiveTopology(RHIPrimitiveTopology topology) {
@@ -167,9 +263,13 @@ void MetalCommandList::SetVertexBuffer(RHIBuffer *buffer, const RHIUInt32 slot, 
         return;
     }
 
-    (void) buffer;
-    (void) slot;
-    (void) offset;
+    auto *metalBuffer = static_cast<MetalBuffer *>(buffer);
+
+    if (metalBuffer == nullptr) {
+        return;
+    }
+
+    m_renderCommandEncoder->setVertexBuffer(metalBuffer->GetNativeBuffer(), offset, slot);
 }
 
 void MetalCommandList::SetIndexBuffer(RHIBuffer *buffer, const RHIUInt64 offset) {
@@ -177,8 +277,10 @@ void MetalCommandList::SetIndexBuffer(RHIBuffer *buffer, const RHIUInt64 offset)
         return;
     }
 
-    (void) buffer;
-    (void) offset;
+    auto *metalBuffer = static_cast<MetalBuffer *>(buffer);
+
+    m_indexBuffer = metalBuffer != nullptr ? metalBuffer->GetNativeBuffer() : nullptr;
+    m_indexBufferOffset = offset;
 }
 
 void MetalCommandList::Draw(
@@ -191,10 +293,13 @@ void MetalCommandList::Draw(
         return;
     }
 
-    (void) vertexCount;
-    (void) instanceCount;
-    (void) firstVertex;
-    (void) firstInstance;
+    m_renderCommandEncoder->drawPrimitives(
+        ToMetalPrimitiveType(m_primitiveTopology),
+        firstVertex,
+        vertexCount,
+        instanceCount,
+        firstInstance
+    );
 }
 
 void MetalCommandList::DrawIndexed(
@@ -208,11 +313,23 @@ void MetalCommandList::DrawIndexed(
         return;
     }
 
-    (void) indexCount;
-    (void) instanceCount;
-    (void) firstIndex;
-    (void) vertexOffset;
-    (void) firstInstance;
+    if (m_indexBuffer == nullptr) {
+        return;
+    }
+
+    // Index buffers are expected to hold 32-bit indices.
+    constexpr NS::UInteger indexSize = sizeof(std::uint32_t);
+
+    m_renderCommandEncoder->drawIndexedPrimitives(
+        ToMetalPrimitiveType(m_primitiveTopology),
+        indexCount,
+        MTL::IndexTypeUInt32,
+        m_indexBuffer,
+        m_indexBufferOffset + firstIndex * indexSize,
+        instanceCount,
+        vertexOffset,
+        firstInstance
+    );
 }
 
 void MetalCommandList::Dispatch(

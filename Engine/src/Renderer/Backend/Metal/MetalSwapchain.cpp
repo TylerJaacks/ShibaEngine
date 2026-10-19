@@ -58,6 +58,8 @@ bool MetalSwapchain::Initialize(MetalDevice *device, const RHISwapchainDesc &des
 }
 
 void MetalSwapchain::Shutdown() {
+    m_BackBuffer.reset();
+
     if (m_CurrentDrawable != nullptr) {
         m_CurrentDrawable->release();
         m_CurrentDrawable = nullptr;
@@ -100,6 +102,8 @@ bool MetalSwapchain::AcquireNextImage() {
         return false;
     }
 
+    m_BackBuffer.reset();
+
     if (m_CurrentDrawable != nullptr) {
         m_CurrentDrawable->release();
         m_CurrentDrawable = nullptr;
@@ -112,6 +116,21 @@ bool MetalSwapchain::AcquireNextImage() {
     }
 
     m_CurrentDrawable->retain();
+
+    const RHITextureDesc backBufferDesc{
+        .width = m_Width,
+        .height = m_Height,
+        .format = m_ColorFormat,
+        .usage = RHITextureUsage::RenderTarget,
+        .debugName = "SwapchainBackBuffer"
+    };
+
+    m_BackBuffer = std::make_unique<MetalTexture>();
+
+    if (!m_BackBuffer->InitializeWrapped(m_CurrentDrawable->texture(), backBufferDesc, false)) {
+        m_BackBuffer.reset();
+        return false;
+    }
 
     return true;
 }
@@ -133,12 +152,14 @@ void MetalSwapchain::Present(MTL::CommandBuffer *commandBuffer) {
 
     commandBuffer->presentDrawable(m_CurrentDrawable);
 
+    m_BackBuffer.reset();
+
     m_CurrentDrawable->release();
     m_CurrentDrawable = nullptr;
 }
 
 RHITexture* MetalSwapchain::GetCurrentBackBuffer() const {
-    return nullptr;
+    return m_BackBuffer.get();
 }
 
 RHIUInt32 MetalSwapchain::GetWidth() const {

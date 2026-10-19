@@ -16,13 +16,12 @@ enum class RHIBackend {
 
 enum class RHIFormat {
     None = 0,
-    R8,
-    RG8,
-    RGB8,
-    RGBA8,
-    BGRA8,
+    R8, RG8, RGB8, RGBA8, BGRA8,
     Depth24Stencil8,
-    Depth32
+    Depth32,
+    Float2,
+    Float3,
+    Float4
 };
 
 enum class RHIShaderStage {

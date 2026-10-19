@@ -102,6 +102,12 @@ namespace {
             case RHIFormat::RGBA8:
             case RHIFormat::BGRA8:
                 return MTL::VertexFormatUChar4Normalized;
+            case RHIFormat::Float2:
+                return MTL::VertexFormatFloat2;
+            case RHIFormat::Float3:
+                return MTL::VertexFormatFloat3;
+            case RHIFormat::Float4:
+                return MTL::VertexFormatFloat4;
             default:
                 return MTL::VertexFormatInvalid;
         }
@@ -147,6 +153,7 @@ MetalPipeline::~MetalPipeline() {
 
 bool MetalPipeline::InitializeGraphics(const RHIGraphicsPipelineDesc& desc) {
     (void) desc;
+
     return false;
 }
 
@@ -200,6 +207,9 @@ bool MetalPipeline::InitializeGraphics(MTL::Device *device, const RHIGraphicsPip
     m_Device->retain();
 
     auto* pipelineDesc = MTL::RenderPipelineDescriptor::alloc()->init();
+
+    pipelineDesc->setVertexFunction(dynamic_cast<MetalShader*>(desc.vertexShader)->GetNativeFunction());
+    pipelineDesc->setFragmentFunction(dynamic_cast<MetalShader*>(desc.fragmentShader)->GetNativeFunction());
 
     pipelineDesc->colorAttachments()->object(0)->setPixelFormat(ToMetalPixelFormat(desc.colorFormat));
     pipelineDesc->setDepthAttachmentPixelFormat(ToMetalPixelFormat(desc.depthStencilFormat));
@@ -255,7 +265,11 @@ bool MetalPipeline::InitializeGraphics(MTL::Device *device, const RHIGraphicsPip
 
     auto* depthStencilDesc = MTL::DepthStencilDescriptor::alloc()->init();
 
-    depthStencilDesc->setDepthCompareFunction(ToMetalCompareFunction(desc.depthStencilState.depthCompareOp));
+    depthStencilDesc->setDepthCompareFunction(
+        desc.depthStencilState.depthTestEnabled
+            ? ToMetalCompareFunction(desc.depthStencilState.depthCompareOp)
+            : MTL::CompareFunctionAlways);
+    depthStencilDesc->setDepthWriteEnabled(desc.depthStencilState.depthWriteEnabled);
 
     m_DepthStencilState = m_Device->newDepthStencilState(depthStencilDesc);
 

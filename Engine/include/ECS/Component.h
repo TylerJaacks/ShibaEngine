@@ -18,7 +18,7 @@ public:
     Component& operator=(Component&&) = default;
 
     virtual void OnInitialize() {}
-    virtual void OnUpdate(Timestep timestep) {}
+    virtual void OnUpdate(Timestep /*timestep*/) {}
     virtual void OnRender() {}
     virtual void OnShutdown() {}
 

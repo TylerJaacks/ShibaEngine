@@ -120,7 +120,7 @@ struct RHIGraphicsPipelineDesc {
     RHIVertexLayoutDesc vertexLayout = {};
 
     RHIFormat colorFormat = RHIFormat::BGRA8;
-    RHIFormat depthStencilFormat = RHIFormat::Depth24Stencil8;
+    RHIFormat depthStencilFormat = RHIFormat::Depth32;
 
     RHIPrimitiveTopology primitiveTopology = RHIPrimitiveTopology::TriangleList;
 

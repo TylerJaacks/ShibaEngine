@@ -6,25 +6,25 @@ Entity::Entity() : m_components() {
 Entity::~Entity() = default;
 
 void Entity::OnInitialize() {
-    for (Component *component : GetComponents()) {
+    for (const auto& component : m_components) {
         component->OnInitialize();
     }
 }
 
 void Entity::OnUpdate(Timestep timestep) {
-    for (Component *component : GetComponents()) {
+    for (const auto& component : m_components) {
         component->OnUpdate(timestep);
     }
 }
 
 void Entity::OnRender() {
-    for (Component *component : GetComponents()) {
+    for (const auto& component : m_components) {
         component->OnRender();
     }
 }
 
 void Entity::OnShutdown() {
-    for (Component *component : GetComponents()) {
+    for (const auto& component : m_components) {
         component->OnShutdown();
     }
 }

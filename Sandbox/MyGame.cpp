@@ -1,28 +1,30 @@
 #include <MyGame.h>
 
-#include "MyScene.h"
+#include <MyScene.h>
 
-MyGame::MyGame() : Game("MyGame") {
-    m_Scene = new MyScene();
+MyGame::MyGame()
+    : Game("MyGame"),
+      m_scene(std::make_unique<MyScene>()) {
 }
 
 void MyGame::OnInitialize() {
-    m_Scene->OnInitialize();
+    m_scene->OnInitialize();
 }
 
 void MyGame::OnUpdate(const Timestep timestep) {
-    m_Scene->OnUpdate(timestep);
+    m_scene->OnUpdate(timestep);
 }
 
 void MyGame::OnRender() {
-    m_Scene->OnRender();
+    m_scene->OnRender();
 }
 
-void MyGame::OnEvent(Event& /*event*/) {
+void MyGame::OnEvent(Event& event) {
+
 }
 
 void MyGame::OnShutdown() {
-    m_Scene->OnShutdown();
+    m_scene->OnShutdown();
 }
 
 Game* CreateGame() {

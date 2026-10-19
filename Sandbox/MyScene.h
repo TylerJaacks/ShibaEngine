@@ -3,7 +3,7 @@
 
 #include <ECS/Scene.h>
 
-#include "MyEntity.h"
+class MyEntity;
 
 class MyScene : public Scene {
 public:
@@ -11,14 +11,9 @@ public:
 
     void OnInitialize() override;
 
-    void OnUpdate(Timestep timestep) override;
-
-    void OnRender() override;
-
-    void OnShutdown() override;
-
 private:
-    Entity *m_Entity;
+    // Owned by Scene; this is just a typed handle.
+    MyEntity* m_entity = nullptr;
 };
 
 #endif //SHIBAENGINE_MYSCENE_H

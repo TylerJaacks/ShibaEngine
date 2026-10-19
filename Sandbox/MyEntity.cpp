@@ -7,31 +7,25 @@
 MyEntity::~MyEntity() = default;
 
 void MyEntity::OnInitialize() {
+    m_cameraComponent = &AddComponent<CameraComponent>();
+    m_transformComponent = &AddComponent<TransformComponent>();
+    m_meshComponent = &AddComponent<MeshComponent>();
+
+    m_transformComponent->SetPositionVector({1.0f, 1.0f, 1.0f});
+    m_transformComponent->SetScaleVector({1.0f, 1.0f, 1.0f});
+
+    // Called last so the components added above get initialized too.
     Entity::OnInitialize();
-
-    m_cameraComponent = new CameraComponent();
-    m_transformComponent = new TransformComponent();
-    m_meshComponent = new MeshComponent();
-
-    GetComponents().emplace_back(m_cameraComponent);
-    GetComponents().emplace_back(m_transformComponent);
-    GetComponents().emplace_back(m_meshComponent);
 }
 
 void MyEntity::OnUpdate(const Timestep timestep) {
     Entity::OnUpdate(timestep);
 
-    static_cast<TransformComponent *>(m_transformComponent)->SetPositionVector({
-        static_cast<TransformComponent *>(m_transformComponent)->GetPositionVector().x * timestep.GetMilliseconds(),
-        static_cast<TransformComponent *>(m_transformComponent)->GetPositionVector().y * timestep.GetMilliseconds(),
-        static_cast<TransformComponent *>(m_transformComponent)->GetPositionVector().z * timestep.GetMilliseconds()
-    });
+    const float deltaSeconds = timestep.GetSeconds();
 
-    static_cast<TransformComponent *>(m_transformComponent)->SetScaleVector({
-        static_cast<TransformComponent *>(m_transformComponent)->GetScaleVector().x * timestep.GetMilliseconds(),
-        static_cast<TransformComponent *>(m_transformComponent)->GetScaleVector().y * timestep.GetMilliseconds(),
-        static_cast<TransformComponent *>(m_transformComponent)->GetScaleVector().z * timestep.GetMilliseconds()
-    });
+    // Update the Position and Scale per-frame.
+    m_transformComponent->SetPositionVector(m_transformComponent->GetPositionVector() + m_velocity * deltaSeconds);
+    m_transformComponent->SetScaleVector(m_transformComponent->GetScaleVector() + m_scaleVelocity * deltaSeconds);
 }
 
 void MyEntity::OnRender() {

@@ -2,7 +2,10 @@
 #define SHIBAENGINE_METALSWAPCHAIN_H
 #if defined(__APPLE__)
 
+#include <Renderer/Backend/Metal/MetalTexture.h>
 #include <Renderer/RHI/RHISwapchain.h>
+
+#include <memory>
 
 namespace CA {
     class MetalLayer;
@@ -58,6 +61,7 @@ private:
 
     CA::MetalLayer* m_Layer = nullptr;
     CA::MetalDrawable* m_CurrentDrawable = nullptr;
+    std::unique_ptr<MetalTexture> m_BackBuffer;
 
     RHIUInt32 m_Width = 0;
     RHIUInt32 m_Height = 0;

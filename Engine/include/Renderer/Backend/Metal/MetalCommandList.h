@@ -8,7 +8,10 @@ namespace MTL {
     class RenderCommandEncoder;
     class ComputeCommandEncoder;
     class BlitCommandEncoder;
+    class Buffer;
 }
+
+class MetalPipeline;
 
 class MetalCommandList final : public RHICommandList {
 public:
@@ -81,6 +84,10 @@ private:
 
     RHICommandListType m_type = RHICommandListType::Graphics;
     RHIPrimitiveTopology m_primitiveTopology = RHIPrimitiveTopology::TriangleList;
+
+    MetalPipeline* m_currentPipeline = nullptr;
+    MTL::Buffer* m_indexBuffer = nullptr;
+    RHIUInt64 m_indexBufferOffset = 0;
 
     bool m_isInitialized = false;
     bool m_isRecording = false;

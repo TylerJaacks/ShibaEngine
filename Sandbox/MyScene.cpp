@@ -1,35 +1,13 @@
 #include <MyScene.h>
 
+#include <MyEntity.h>
+
 MyScene::~MyScene() = default;
 
 void MyScene::OnInitialize() {
+    m_entity = &CreateEntity<MyEntity>();
+
+    // Called last so the entities created above get initialized too.
+    // Update, Render and Shutdown are handled by Scene, which visits every entity once.
     Scene::OnInitialize();
-
-    m_Entity = new Entity();
-
-    GetEntities().emplace_back(m_Entity);
-}
-
-void MyScene::OnUpdate(const Timestep timestep) {
-    Scene::OnUpdate(timestep);
-
-    for (const auto& entity : GetEntities()) {
-        entity->OnUpdate(timestep);
-    }
-}
-
-void MyScene::OnRender() {
-    Scene::OnRender();
-
-    for (const auto& entity : GetEntities()) {
-        entity->OnRender();
-    }
-}
-
-void MyScene::OnShutdown() {
-    Scene::OnShutdown();
-
-    for (const auto& entity : GetEntities()) {
-        entity->OnShutdown();
-    }
 }

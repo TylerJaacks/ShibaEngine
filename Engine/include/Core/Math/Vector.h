@@ -9,7 +9,20 @@ struct Vector3 {
 
     constexpr Vector3() = default;
     constexpr Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
+
+    constexpr Vector3 operator+(const Vector3& other) const { return {x + other.x, y + other.y, z + other.z}; }
+    constexpr Vector3 operator-(const Vector3& other) const { return {x - other.x, y - other.y, z - other.z}; }
+    constexpr Vector3 operator*(T scalar) const { return {x * scalar, y * scalar, z * scalar}; }
+    constexpr Vector3 operator/(T scalar) const { return {x / scalar, y / scalar, z / scalar}; }
+
+    constexpr Vector3& operator+=(const Vector3& other) { x += other.x; y += other.y; z += other.z; return *this; }
+    constexpr Vector3& operator-=(const Vector3& other) { x -= other.x; y -= other.y; z -= other.z; return *this; }
+    constexpr Vector3& operator*=(T scalar) { x *= scalar; y *= scalar; z *= scalar; return *this; }
+    constexpr Vector3& operator/=(T scalar) { x /= scalar; y /= scalar; z /= scalar; return *this; }
 };
+
+template <typename T>
+constexpr Vector3<T> operator*(T scalar, const Vector3<T>& vector) { return vector * scalar; }
 
 class Vector3i {
 public:
