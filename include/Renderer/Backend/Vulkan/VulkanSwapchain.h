@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_VULKANSWAPCHAIN_H
+#define SHIBAENGINE_VULKANSWAPCHAIN_H
+
+#endif //SHIBAENGINE_VULKANSWAPCHAIN_H

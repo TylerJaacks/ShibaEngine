@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_OPENXRINSTANCE_H
+#define SHIBAENGINE_OPENXRINSTANCE_H
+
+#endif //SHIBAENGINE_OPENXRINSTANCE_H

@@ -1,0 +1,10 @@
+{
+  "name": "vrgame1",
+  "version-string": "0.1.0",
+  "dependencies": [
+    {
+      "name": "metal-cpp",
+      "platform": "osx"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_XRSWAPCHAIN_H
+#define SHIBAENGINE_XRSWAPCHAIN_H
+
+#endif //SHIBAENGINE_XRSWAPCHAIN_H

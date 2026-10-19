@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_TOUCHEVENT_H
+#define SHIBAENGINE_TOUCHEVENT_H
+
+#endif //SHIBAENGINE_TOUCHEVENT_H

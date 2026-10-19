@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_TAGCOMPONENT_H
+#define SHIBAENGINE_TAGCOMPONENT_H
+
+#endif //SHIBAENGINE_TAGCOMPONENT_H

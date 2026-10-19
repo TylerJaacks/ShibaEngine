@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_VULKANCONTEXT_H
+#define SHIBAENGINE_VULKANCONTEXT_H
+
+#endif //SHIBAENGINE_VULKANCONTEXT_H

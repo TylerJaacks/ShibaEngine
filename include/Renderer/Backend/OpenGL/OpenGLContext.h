@@ -1,0 +1,8 @@
+//
+// Created by Tyler Jaacks on 9/28/26.
+//
+
+#ifndef SHIBAENGINE_OPENGLCONTEXT_H
+#define SHIBAENGINE_OPENGLCONTEXT_H
+
+#endif //SHIBAENGINE_OPENGLCONTEXT_H

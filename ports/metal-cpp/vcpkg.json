@@ -1,0 +1,8 @@
+{
+  "name": "metal-cpp",
+  "version-string": "1.0.0",
+  "description": "Apple metal-cpp C++ headers for Metal.",
+  "homepage": "https://github.com/apple/metal-cpp",
+  "license": "Apache-2.0",
+  "supports": "osx"
+}
