@@ -1,7 +1,3 @@
-//
-// Created by Tyler Jaacks on 9/28/26.
-//
-
 #include "Engine.h"
 
 #include <chrono>

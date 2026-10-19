@@ -6,7 +6,7 @@
 
 class CameraComponent final : public Component {
 public:
-    static constexpr ComponentTypeId TypeId = 3;
+    static constexpr ComponentTypeId TypeId = 2;
 
     CameraComponent();
     ~CameraComponent() override = default;

@@ -11,7 +11,7 @@ using MaterialHandle = std::uint64_t;
 
 class MeshComponent final : public Component {
 public:
-    static constexpr ComponentTypeId TypeId = 4;
+    static constexpr ComponentTypeId TypeId = 3;
 
     MeshComponent() = default;
     MeshComponent(MeshHandle meshHandle, MaterialHandle materialHandle = 0);
